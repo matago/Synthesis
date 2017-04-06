@@ -1,6 +1,6 @@
 using EVOCLUS, TSPLIB
 
-tsp = readTSPLIB(:usa13509)
+tsp = readTSPLIB(:a280)
 
 objfun = tsp.ffx
 N = tsp.dimension
@@ -15,7 +15,7 @@ mutation = insertion!
 iterations = 100
 tol = 0.0
 tolIter = 9999
-vstep = 10
+vstep = 1000
 rebal = true
 inform = true
 robust = true

@@ -4,14 +4,15 @@
 
 
 
-@everywhere function runner(tgt::Symbol)
+@everywhere function runner(tpl::Tuple{Symbol,Int})
+  tgt,i = tpl
   tsp = readTSPLIB(tgt)
-  file = jldopen(joinpath(sdump,"$(tsp.name).jld"), "w")
-  for i in 1:10
-    dict = runGA(tsp)
-    file["$i"] = dict
-  end
+  dict = runGA(tsp)
+  file = jldopen(joinpath(sdump,"$(tsp.name).jld"), "r+")
+  file["$i"] = dict
   close(file)
+  println(tsp.name," : ",i)
+  return
 end
 
 
@@ -42,9 +43,30 @@ end
   return dict
 end
 
-function main()
-  allTSP = findTSP(TSPLIB95_path)
-  pmap(runner,allTSP[1:1])
+function main(k::Int)
+  targets = Symbol[:berlin52,:kroa100,:pr144,:ch150,:kroB150,:pr152,:rat195,
+                   :d198,:kroa200,:ts225,:pr226,:pr299,:lin318,:pcb442,:ch130,
+                   :a280,:d493,:u574,:u724,:pr1002,:u1060,:d1291,:u1432,:d1655,
+                   :u2152,:pr2392,:pcb3038,:fnl4461,:usa13509]
+  n = length(targets)
+  #instruction set
+  instruct = Tuple{Symbol,Integer}[]
+  #fill instruction set
+  for i in 1:n
+    for j in 1:k
+      push!(instruct,(targets[i],j))
+    end
+  end
+
+  #create .jld files
+  for i in 1:n
+    file = jldopen(joinpath(sdump,"$(targets[i]).jld"),"w")
+    close(file)
+  end
+  #pmap(runner,targets)
+  return shuffle(instruct)
 end
 
-main()
+instruct = main(5)
+println(instruct)
+
